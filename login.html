@@ -1,0 +1,70 @@
+login.html
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKex - Accedi</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            padding: 40px;
+            text-align: center;
+        }
+        .container h1 {
+            margin-bottom: 20px;
+        }
+        .container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .container button {
+            width: 100%;
+        }
+        .error-message {
+            color: #f44336;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Accedi a GKex</h1>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Nome utente" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <div id="error-message" class="error-message">Nome utente o password errati.</div>
+            <button type="submit">Accedi</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            const correctUsername = 'lelebatta';
+            const correctPassword = 'Portiere1!'; 
+
+            if (username === correctUsername && password === correctPassword) {
+                localStorage.setItem('isLoggedIn', 'true');
+                window.location.href = 'index.html';
+            } else {
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>
