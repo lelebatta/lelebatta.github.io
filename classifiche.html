@@ -1,0 +1,369 @@
+classifiche.html
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKex - Classifiche</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+        .filter-panel {
+            flex: 1;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .goalkeeper-list {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+        .modal-content {
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #pdf-content-wrapper {
+            position: absolute;
+            left: -9999px;
+            width: 210mm;
+            padding: 20mm;
+            box-sizing: border-box;
+            background: #fff;
+        }
+        .pdf-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .pdf-logo img {
+            max-width: 150px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="inserisci-portiere.html">Inserisci Portiere</a>
+        <a href="classifiche.html">Classifiche</a>
+        <a href="cerca.html">Cerca</a>
+    </div>
+
+    <h1>Classifiche Portieri</h1>
+
+    <div class="container">
+        <div class="filter-panel">
+            <h2>Filtri</h2>
+            <div class="filter-group">
+                <h3>Anno di Nascita</h3>
+                <label for="anno-min">Da:</label>
+                <input type="number" id="anno-min" min="1950" max="2025" value="1950">
+                <label for="anno-max">A:</label>
+                <input type="number" id="anno-max" min="1950" max="2025" value="2025">
+            </div>
+            
+            <div class="filter-group">
+                <h3>Piede Preferito</h3>
+                <label><input type="checkbox" name="piede-filter" value="destro"> Destro</label>
+                <label><input type="checkbox" name="piede-filter" value="sinistro"> Sinistro</label>
+                <label><input type="checkbox" name="piede-filter" value="ambidestro"> Ambidestro</label>
+            </div>
+
+            <div class="filter-group">
+                <h3>Visionato</h3>
+                <label><input type="checkbox" name="visione-filter" value="visionato"> Visionato</label>
+                <label><input type="checkbox" name="visione-filter" value="non-visionato"> Non Visionato</label>
+            </div>
+
+            <div class="filter-group">
+                <h3>Moduli di Gioco</h3>
+                <label><input type="checkbox" name="moduli-filter" value="442"> 4-4-2</label>
+                <label><input type="checkbox" name="moduli-filter" value="433"> 4-3-3</label>
+                <label><input type="checkbox" name="moduli-filter" value="4231"> 4-2-3-1</label>
+                <label><input type="checkbox" name="moduli-filter" value="352"> 3-5-2</label>
+                <label><input type="checkbox" name="moduli-filter" value="343"> 3-4-3</label>
+            </div>
+            
+            <div class="filter-group">
+                <h3>Valutazione Media</h3>
+                <label for="valutazione-min">Min:</label>
+                <input type="number" id="valutazione-min" min="0" max="10" value="0">
+                <label for="valutazione-max">Max:</label>
+                <input type="number" id="valutazione-max" min="0" max="10" value="10">
+            </div>
+        </div>
+
+        <div class="goalkeeper-list" id="goalkeeper-list">
+            <div style="text-align: center; color: #666;">Nessun portiere trovato.</div>
+        </div>
+    </div>
+
+    <div id="goalkeeper-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div id="goalkeeper-details-content"></div>
+        </div>
+    </div>
+
+    <div id="pdf-content-wrapper"></div>
+
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const goalkeeperList = document.getElementById('goalkeeper-list');
+            const annoMinInput = document.getElementById('anno-min');
+            const annoMaxInput = document.getElementById('anno-max');
+            const valutazioneMinInput = document.getElementById('valutazione-min');
+            const valutazioneMaxInput = document.getElementById('valutazione-max');
+            const filterInputs = document.querySelectorAll('.filter-panel input');
+            const modal = document.getElementById('goalkeeper-details-modal');
+            const closeButton = document.querySelector('.close-button');
+            const detailsContent = document.getElementById('goalkeeper-details-content');
+            const pdfWrapper = document.getElementById('pdf-content-wrapper');
+
+            function generateId() {
+                return '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            function ensureGoalkeeperIds() {
+                let portieri = JSON.parse(localStorage.getItem('portieri')) || [];
+                let changed = false;
+                portieri = portieri.map(p => {
+                    if (!p.id) {
+                        p.id = generateId();
+                        changed = true;
+                    }
+                    return p;
+                });
+                if (changed) {
+                    localStorage.setItem('portieri', JSON.stringify(portieri));
+                }
+                return portieri;
+            }
+
+            function displayGoalkeepers(portieri) {
+                portieri.sort((a, b) => b.valutazioneMedia - a.valutazioneMedia);
+                
+                goalkeeperList.innerHTML = '';
+
+                if (portieri.length === 0) {
+                    goalkeeperList.innerHTML = '<div style="text-align: center; color: #666;">Nessun portiere trovato.</div>';
+                    return;
+                }
+
+                portieri.forEach(portiere => {
+                    const card = document.createElement('div');
+                    card.classList.add('goalkeeper-card');
+                    card.dataset.id = portiere.id;
+                    card.innerHTML = `
+                        <div class="goalkeeper-info">
+                            <div class="goalkeeper-name">${portiere.nome} ${portiere.cognome}</div>
+                            <div><strong>Altezza:</strong> ${portiere.altezza}cm</div>
+                            <div><strong>Piede:</strong> ${portiere.piede}</div>
+                        </div>
+                        <div class="goalkeeper-rating">${portiere.valutazioneMedia}</div>
+                    `;
+                    goalkeeperList.appendChild(card);
+
+                    card.addEventListener('click', () => {
+                        const id = card.dataset.id;
+                        const allPortieri = ensureGoalkeeperIds();
+                        const portiereDaMostrare = allPortieri.find(p => p.id === id);
+                        if (portiereDaMostrare) {
+                            showGoalkeeperDetails(portiereDaMostrare);
+                        }
+                    });
+                });
+            }
+
+            function filterAndDisplay() {
+                let portieri = ensureGoalkeeperIds();
+                
+                const annoMin = parseInt(annoMinInput.value) || 1950;
+                const annoMax = parseInt(annoMaxInput.value) || 2025;
+                const valutazioneMin = parseFloat(valutazioneMinInput.value) || 0;
+                const valutazioneMax = parseFloat(valutazioneMaxInput.value) || 10;
+
+                const selectedPiedi = Array.from(document.querySelectorAll('input[name="piede-filter"]:checked')).map(cb => cb.value);
+                const selectedVisione = Array.from(document.querySelectorAll('input[name="visione-filter"]:checked')).map(cb => cb.value);
+                const selectedModuli = Array.from(document.querySelectorAll('input[name="moduli-filter"]:checked')).map(cb => cb.value);
+
+                const filteredPortieri = portieri.filter(p => {
+                    const byAnno = (p.annoNascita !== undefined && p.annoNascita >= annoMin && p.annoNascita <= annoMax);
+                    const byPiede = selectedPiedi.length === 0 || (p.piede !== undefined && selectedPiedi.includes(p.piede));
+                    const byVisione = selectedVisione.length === 0 || (p.visione !== undefined && selectedVisione.includes(p.visione));
+                    const byModuli = selectedModuli.length === 0 || (p.moduli && p.moduli.some(mod => selectedModuli.includes(mod)));
+                    const byValutazione = (p.valutazioneMedia !== undefined && p.valutazioneMedia >= valutazioneMin && p.valutazioneMedia <= valutazioneMax);
+                    
+                    return byAnno && byPiede && byVisione && byModuli && byValutazione;
+                });
+
+                displayGoalkeepers(filteredPortieri);
+            }
+            
+            window.generatePDF = (portiere) => {
+                pdfWrapper.innerHTML = `
+                    <div class="pdf-logo">
+                        <img src="img/logo-gkex.png" alt="Logo GKex">
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h1>Scheda di Scouting</h1>
+                        <h2>${portiere.nome} ${portiere.cognome}</h2>
+                    </div>
+                    <div class="pdf-section">
+                        ${portiere.immagine ? `<img src="${portiere.immagine}" style="max-width: 150px; float: right; margin-left: 20px;">` : ''}
+                        <p><strong>Anno di Nascita:</strong> ${portiere.annoNascita}</p>
+                        <p><strong>Squadra:</strong> ${portiere.squadra}</p>
+                        <p><strong>Altezza:</strong> ${portiere.altezza} cm</p>
+                        <p><strong>Piede Preferito:</strong> ${portiere.piede}</p>
+                        <p><strong>Stato Visione:</strong> ${portiere.visione}</p>
+                        <p><strong>Moduli di Gioco:</strong> ${portiere.moduli ? portiere.moduli.join(', ') : 'N/A'}</p>
+                        <p><strong>Valutazione Media:</strong> ${portiere.valutazioneMedia}</p>
+                    </div>
+                    <div style="clear: both;"></div>
+                    <div class="pdf-section">
+                        <h2>Valutazioni Dettagliate</h2>
+                        <div class="rating-details">
+                            ${Object.keys(portiere.ratings).map(key => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <span style="font-weight: bold;">${key.replace('-', ' ').toUpperCase()}:</span>
+                                    <div class="rating-dots">${Array(10).fill().map((_, i) => `<div class="dot" style="background-color: ${i < portiere.ratings[key] ? '#4CAF50' : '#ddd'}; width: 15px; height: 15px; border-radius: 50%; margin-right: 5px; display: inline-block;"></div>`).join('')}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="pdf-section">
+                        <h2>Commento</h2>
+                        <p>${portiere.commento}</p>
+                    </div>
+                `;
+
+                const images = pdfWrapper.querySelectorAll('img');
+                const promises = Array.from(images).map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise(resolve => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                });
+
+                Promise.all(promises).then(() => {
+                    html2canvas(pdfWrapper, {
+                        scale: 2
+                    }).then(canvas => {
+                        const imgData = canvas.toDataURL('image/png');
+                        const { jsPDF } = window.jspdf;
+                        const pdf = new jsPDF('p', 'mm', 'a4');
+                        const imgProps = pdf.getImageProperties(imgData);
+                        const pdfWidth = pdf.internal.pageSize.getWidth();
+                        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                        pdf.save(`${portiere.nome}_${portiere.cognome}.pdf`);
+                    });
+                });
+            };
+
+            function showGoalkeeperDetails(portiere) {
+                detailsContent.innerHTML = `
+                    <div class="modal-header">
+                        <h2>${portiere.nome} ${portiere.cognome}</h2>
+                        <div class="modal-buttons">
+                            <button onclick="editGoalkeeper('${portiere.id}')" class="edit-button">Modifica</button>
+                            <button onclick="deleteGoalkeeper('${portiere.id}')" class="delete-button">Elimina</button>
+                            <button onclick="generatePDF(${JSON.stringify(portiere).replace(/"/g, "'")})" class="download-button">Download PDF</button>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        ${portiere.immagine ? `<img src="${portiere.immagine}" class="modal-image" alt="Immagine di ${portiere.nome} ${portiere.cognome}">` : ''}
+                        <p><strong>Anno di Nascita:</strong> ${portiere.annoNascita}</p>
+                        <p><strong>Squadra:</strong> ${portiere.squadra}</p>
+                        <p><strong>Altezza:</strong> ${portiere.altezza} cm</p>
+                        <p><strong>Piede Preferito:</strong> ${portiere.piede}</p>
+                        <p><strong>Stato Visione:</strong> ${portiere.visione}</p>
+                        <p><strong>Moduli di Gioco:</strong> ${portiere.moduli ? portiere.moduli.join(', ') : 'N/A'}</p>
+                        <p><strong>Valutazione Media:</strong> ${portiere.valutazioneMedia}</p>
+                        <h4>Valutazioni Dettagliate:</h4>
+                        <div class="rating-details">
+                            ${Object.keys(portiere.ratings).map(key => `
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>${key.replace('-', ' ').toUpperCase()}:</span>
+                                    <div class="rating-dots">
+                                        ${Array(10).fill().map((_, i) => `<div class="dot ${i < portiere.ratings[key] ? 'active' : ''}"></div>`).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p><strong>Commento:</strong> ${portiere.commento}</p>
+                    </div>
+                `;
+                modal.style.display = 'block';
+            }
+
+            window.editGoalkeeper = (id) => {
+                window.location.href = `inserisci-portiere.html?id=${id}`;
+            };
+
+            window.deleteGoalkeeper = (id) => {
+                if (confirm('Sei sicuro di voler eliminare questo portiere?')) {
+                    let portieri = ensureGoalkeeperIds();
+                    portieri = portieri.filter(p => p.id !== id);
+                    localStorage.setItem('portieri', JSON.stringify(portieri));
+                    modal.style.display = 'none';
+                    filterAndDisplay();
+                    alert('Portiere eliminato con successo.');
+                }
+            };
+
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            filterInputs.forEach(input => {
+                input.addEventListener('change', filterAndDisplay);
+            });
+            
+            filterAndDisplay();
+        });
+    </script>
+</body>
+</html>
