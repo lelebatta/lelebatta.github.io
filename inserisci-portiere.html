@@ -1,0 +1,352 @@
+inserisci-portiere.html
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKex - Scheda Portiere</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            padding: 40px;
+            margin: 20px auto;
+        }
+        .option-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .rating-dots {
+            display: flex;
+            gap: 5px;
+        }
+        .dot {
+            width: 20px;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .dot.active {
+            background-color: #4CAF50;
+        }
+        .download-template-btn {
+            display: block;
+            margin: 0 auto 30px auto;
+            width: fit-content;
+            padding: 12px 25px;
+            background-color: #f39c12;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .download-template-btn:hover {
+            background-color: #e67e22;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="inserisci-portiere.html">Inserisci Portiere</a>
+        <a href="classifiche.html">Classifiche</a>
+        <a href="cerca.html">Cerca</a>
+    </div>
+
+    <div class="container">
+        <a href="pdf/modello-scouting.pdf" download class="download-template-btn">Scarica Modello PDF</a>
+        
+        <h1 id="form-title">Scheda Portiere</h1>
+        <form id="goalkeeper-form">
+            <div class="form-section">
+                <label for="immagine">IMMAGINE</label>
+                <input type="file" id="immagine" name="immagine" accept="image/*">
+                <img id="goalkeeper-image-preview">
+            </div>
+
+            <div class="form-section">
+                <label for="nome">NOME</label>
+                <input type="text" id="nome" name="nome">
+            </div>
+
+            <div class="form-section">
+                <label for="cognome">COGNOME</label>
+                <input type="text" id="cognome" name="cognome">
+            </div>
+
+            <div class="form-section">
+                <label for="anno">ANNO DI NASCITA</label>
+                <input type="number" id="anno" name="anno" min="1950" max="2025">
+            </div>
+
+            <div class="form-section">
+                <label for="squadra">SQUADRA</label>
+                <input type="text" id="squadra" name="squadra">
+            </div>
+
+            <div class="form-section">
+                <label for="altezza">ALTEZZA (cm)</label>
+                <input type="number" id="altezza" name="altezza" min="150" max="220">
+            </div>
+
+            <div class="form-section">
+                <label>Piede Preferito</label>
+                <div class="option-group">
+                    <div class="radio-option">
+                        <input type="radio" id="destro" name="piede" value="destro">
+                        <label for="destro">DESTRO</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="sinistro" name="piede" value="sinistro">
+                        <label for="sinistro">SINISTRO</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="ambidestro" name="piede" value="ambidestro">
+                        <label for="ambidestro">AMBIDESTRO</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label>Stato Visione</label>
+                <div class="option-group">
+                    <div class="radio-option">
+                        <input type="radio" id="visionato" name="visione" value="visionato">
+                        <label for="visionato">VISIONATO</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="non-visionato" name="visione" value="non-visionato">
+                        <label for="non-visionato">NON VISIONATO</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <label>Moduli di Gioco</label>
+                <div class="option-group">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="442" name="moduli" value="442">
+                        <label for="442">4-4-2</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="433" name="moduli" value="433">
+                        <label for="433">4-3-3</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="4231" name="moduli" value="4231">
+                        <label for="4231">4-2-3-1</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="352" name="moduli" value="352">
+                        <label for="352">3-5-2</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="343" name="moduli" value="343">
+                        <label for="343">3-4-3</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Valutazioni</h2>
+                <div class="rating-group">
+                    <div class="rating-item">
+                        <div class="rating-label">TECNICA</div>
+                        <div class="rating-dots" data-rating-for="tecnica"></div>
+                    </div>
+                    <div class="rating-item">
+                        <div class="rating-label">USCITE ALTE</div>
+                        <div class="rating-dots" data-rating-for="uscite-alte"></div>
+                    </div>
+                    <div class="rating-item">
+                        <div class="rating-label">DISTRIBUZIONE</div>
+                        <div class="rating-dots" data-rating-for="distribuzione"></div>
+                    </div>
+                    <div class="rating-item">
+                        <div class="rating-label">PARATE</div>
+                        <div class="rating-dots" data-rating-for="parate"></div>
+                    </div>
+                    <div class="rating-item">
+                        <div class="rating-label">POSIZIONAMENTO</div>
+                        <div class="rating-dots" data-rating-for="posizionamento"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label for="commento">COMMENTO</label>
+                <textarea id="commento" name="commento" rows="5"></textarea>
+            </div>
+
+            <button class="submit-button" type="submit">Aggiungi Portiere</button>
+        </form>
+    </div>
+
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('goalkeeper-form');
+            const formTitle = document.getElementById('form-title');
+            const submitButton = document.querySelector('.submit-button');
+            const urlParams = new URLSearchParams(window.location.search);
+            const portiereIdToEdit = urlParams.get('id');
+
+            function generateId() {
+                return '_' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            function setupRatingDots(ratings = {}) {
+                const ratingGroups = document.querySelectorAll('.rating-dots');
+                ratingGroups.forEach(group => {
+                    const maxRating = 10;
+                    const ratingName = group.dataset.ratingFor;
+                    
+                    group.innerHTML = '';
+                    for (let i = 1; i <= maxRating; i++) {
+                        const dot = document.createElement('div');
+                        dot.classList.add('dot');
+                        dot.setAttribute('data-value', i);
+                        if (ratings[ratingName] && i <= ratings[ratingName]) {
+                            dot.classList.add('active');
+                        }
+                        group.appendChild(dot);
+                    }
+                    group.addEventListener('click', (event) => {
+                        const clickedDot = event.target.closest('.dot');
+                        if (!clickedDot) return;
+                        const value = parseInt(clickedDot.getAttribute('data-value'));
+                        const dots = group.querySelectorAll('.dot');
+                        dots.forEach(dot => {
+                            const dotValue = parseInt(dot.getAttribute('data-value'));
+                            if (dotValue <= value) {
+                                dot.classList.add('active');
+                            } else {
+                                dot.classList.remove('active');
+                            }
+                        });
+                    });
+                });
+            }
+
+            if (portiereIdToEdit) {
+                formTitle.textContent = 'Modifica Portiere';
+                submitButton.textContent = 'Salva Modifiche';
+                
+                const portieri = JSON.parse(localStorage.getItem('portieri')) || [];
+                const portiere = portieri.find(p => p.id === portiereIdToEdit);
+
+                if (portiere) {
+                    document.getElementById('nome').value = portiere.nome;
+                    document.getElementById('cognome').value = portiere.cognome;
+                    document.getElementById('anno').value = portiere.annoNascita;
+                    document.getElementById('squadra').value = portiere.squadra;
+                    document.getElementById('altezza').value = portiere.altezza;
+                    document.getElementById('commento').value = portiere.commento;
+                    
+                    if (portiere.piede) document.getElementById(portiere.piede).checked = true;
+                    if (portiere.visione) document.getElementById(portiere.visione).checked = true;
+                    if (portiere.moduli) {
+                        portiere.moduli.forEach(mod => {
+                            const checkbox = document.getElementById(mod);
+                            if(checkbox) checkbox.checked = true;
+                        });
+                    }
+                    
+                    if (portiere.immagine) {
+                        const imgPreview = document.getElementById('goalkeeper-image-preview');
+                        imgPreview.src = portiere.immagine;
+                        imgPreview.style.display = 'block';
+                    }
+                    setupRatingDots(portiere.ratings);
+                } else {
+                    alert('Portiere non trovato.');
+                    setupRatingDots({});
+                }
+            } else {
+                setupRatingDots({});
+            }
+
+            const immagineInput = document.getElementById('immagine');
+            const immaginePreview = document.getElementById('goalkeeper-image-preview');
+            let base64Image = null;
+            
+            immagineInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        immaginePreview.src = e.target.result;
+                        immaginePreview.style.display = 'block';
+                        base64Image = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const nome = document.getElementById('nome').value;
+                const cognome = document.getElementById('cognome').value;
+                const annoNascita = document.getElementById('anno').value;
+                const squadra = document.getElementById('squadra').value;
+                const altezza = document.getElementById('altezza').value;
+                const piede = document.querySelector('input[name="piede"]:checked')?.value || null;
+                const visione = document.querySelector('input[name="visione"]:checked')?.value || null;
+                const moduli = Array.from(document.querySelectorAll('input[name="moduli"]:checked')).map(cb => cb.value);
+                const commento = document.getElementById('commento').value;
+
+                const ratings = {};
+                let totalRating = 0;
+                let ratingCount = 0;
+                document.querySelectorAll('.rating-item').forEach(item => {
+                    const ratingLabel = item.querySelector('.rating-dots').dataset.ratingFor;
+                    const activeDots = item.querySelectorAll('.dot.active').length;
+                    ratings[ratingLabel] = activeDots;
+                    if (activeDots > 0) {
+                        totalRating += activeDots;
+                        ratingCount++;
+                    }
+                });
+                const valutazioneMedia = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : 0;
+                
+                const portiereData = {
+                    id: portiereIdToEdit || generateId(),
+                    nome, cognome, annoNascita, squadra, altezza, piede, visione, moduli, ratings, valutazioneMedia, commento,
+                    immagine: base64Image || (portiereIdToEdit ? (JSON.parse(localStorage.getItem('portieri')).find(p => p.id === portiereIdToEdit)?.immagine || null) : null)
+                };
+
+                let portieri = JSON.parse(localStorage.getItem('portieri')) || [];
+
+                if (portiereIdToEdit) {
+                    const index = portieri.findIndex(p => p.id === portiereIdToEdit);
+                    if (index !== -1) {
+                        portieri[index] = portiereData;
+                    }
+                    alert('Portiere modificato con successo!');
+                } else {
+                    portieri.push(portiereData);
+                    alert('Portiere aggiunto con successo!');
+                    form.reset();
+                    setupRatingDots({});
+                    immaginePreview.style.display = 'none';
+                    base64Image = null;
+                }
+
+                localStorage.setItem('portieri', JSON.stringify(portieri));
+            });
+        });
+    </script>
+</body>
+</html>
